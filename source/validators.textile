@@ -1,0 +1,88 @@
+h2. Validators
+ 
+This guide covers the use and creation of SproutCore validators. After reading this guide, you will be able to:
+ 
+* Utilize the validators provided by SproutCore.
+* Create your own validators.
+ 
+endprologue.
+ 
+h3. Why Validators?
+
+Validators provide a convenient mechanism to consistently apply validation rules to text fields.  Validators will reject invalid input providing immediate feedback to your users.
+
+h3. Using Stock Validators
+
+SproutCore provides a number of stock validators in the SC.Validator namespace. Using them is fairly straight forward:
+
+<javascript filename="apps/app/views/my_view.js">
+App.MyView = SC.View.extend({
+
+  ...
+
+  numericDataField: SC.TextFieldView.extend({
+    layout: { top: 56, left: 130, width: 200, height: 18 },
+    validator: 'Number',
+    valueBinding: 'App.myController.numericData'
+  })
+
+  ...
+
+});
+</javascript>
+
+By setting the "validator" property, your text field will only accept integers.  Perhaps your numeric data requires accepting real numbers.  The "Number" validator can still be used, but requires more detailed specification:
+
+<javascript filename="apps/app/views/my_view.js">
+App.MyView = SC.View.extend({
+
+  ...
+
+  numericDataField: SC.TextFieldView.extend({
+    layout: { top: 56, left: 130, width: 200, height: 18 },
+    validator: SC.Validator.Number.create({
+      places: 6
+    }),
+    valueBinding: 'App.myController.numericData'
+  })
+
+  ...
+
+});
+</javascript>
+
+Using this specification, your text field will accept numbers with a precision of six decimal places.
+
+Occasionally a situation will arise where a user is entering data that, in its intermediate form, will not conform to the validation routine. In these situations, a good user interface will delay validation until the user has completed his data entry task.  SproutCore provides the means for this by utilizing the "applyImmediately" property:
+
+<javascript filename="apps/app/views/my_view.js">
+App.MyView = SC.View.extend({
+
+  ...
+
+  numericDataField: SC.TextFieldView.extend({
+    layout: { top: 56, left: 130, width: 200, height: 18 },
+    validator: SC.Validator.Number.create({
+      places: 6
+    }),
+    valueBinding: 'App.myController.numericData'
+  }),
+
+  temporalDataField: SC.TextFieldView.extend({
+    layout: { top: 84, left: 130, width: 200, height: 18 },
+    applyImmediately: NO,
+    validator: 'DateTime',
+    valueBinding: 'App.myController.temporalData'
+  })
+
+  ...
+
+});
+</javascript>
+
+By setting "applyImmediately: NO" the user is able to set data that does not conform to the valid format while editing the text field.  Once that text field loses focus, the validation rules are applied. The result of failed validation will vary between validators.
+
+h3. Creating Custom Validators
+
+The provided set of validators is by no means comprehensive, and your applications may require specialized validation to conform to your business rules. Here we will see how to extend SC.Validator to implement that specialized validation.
+
