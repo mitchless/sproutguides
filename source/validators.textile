@@ -86,3 +86,67 @@ h3. Creating Custom Validators
 
 The provided set of validators is by no means comprehensive, and your applications may require specialized validation to conform to your business rules. Here we will see how to extend SC.Validator to implement that specialized validation.
 
+Let's say your application requires fields that are to contain integer data within a certain range:
+
+<javascript filename="apps/app/validators/my_range_validator.js">
+/** @class
+ *
+ * Validator object to ensure that values are between 0 and 1000 (inclusive)
+ */
+App.MyRangeValidator = SC.Validator.extend({
+  
+  /**
+   * Take the object the field's value is bound to and return something the
+   * field view can use.
+   */
+  fieldValueForObject: function(object, form, field) {
+    switch(SC.typeof(object)) {
+      case SC.T_NULL:
+      case SC.T_UNDEFINED:
+        object = 0;
+        break;
+      default:
+        // so long as the object isn't null we'll take what we're given
+        break;
+    }
+
+    return object;
+  },
+
+  /**
+   * Take the field's value and return something that the bound object can
+   * use.
+   */
+  objectForFieldValue: function(value, form, field) {
+    // commas? we don't need no stinking commas!
+    value = value.replace(/,/g, '');
+
+    switch(SC.typeOf(value)) {
+      case SC.T_STRING:
+        if (0 === value.length) {
+          value = 0;
+        } else {
+          value = parseInt(value, 0);
+        }
+        break;
+      case SC.T_NULL:
+      case SC.T_UNDEFINED:
+        value = 0;
+        break;
+      default:
+        // we'll accept what we're given
+        break;
+    }
+
+    // make sure we have a valid number
+    if(isNaN(value)) {
+      value = 0;
+    }
+
+    return value;
+  }
+
+
+});
+</javascript>
+
